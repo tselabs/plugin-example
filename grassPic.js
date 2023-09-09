@@ -1,13 +1,5 @@
-import fs from 'fs';
 import fetch from 'node-fetch';
 import plugin from '../../lib/plugins/plugin.js';
-
-if (!global.segment) {
-  global.segment = (await import('oicq')).segment
-}
-
-const _path = process.cwd();
-const cachePath = `${_path}/data/grassPicCache`;
 
 /**
  * 是否启用开发模式
@@ -25,11 +17,6 @@ let getStatusUrl = `https://oss.grass.starxw.com/service/status`;
 if (devMode) {
   getPicUrl += `&devmode=normal`;
   getStatusUrl += `?devmode=normal`;
-}
-
-// Init cache path
-if (!fs.existsSync(cachePath)) {
-  fs.mkdirSync(cachePath);
 }
 
 export class GrassPic extends plugin {
