@@ -43,11 +43,11 @@ export class GrassPic extends plugin {
         {
           reg: '^(#)?生草$',
           fnc: 'sendGrassPic'
+        },
+        {
+          reg: '^(#)?草图状态$',
+          fnc: 'sendServiceStatus'
         }
-        // {
-        //   reg: '^(#)?草图状态$',
-        //   fnc: 'sendServiceStatus'
-        // }
       ]
     })
   }
@@ -68,5 +68,32 @@ export class GrassPic extends plugin {
     const buffer = Buffer.from(imageData);
     // 发送图片
     await e.reply(segment.image(buffer), true);
+  }
+
+  /** 发送服务状态 */
+  async sendServiceStatus(e) {
+    try {
+      // 发送服务状态请求
+      const response = await fetch(getStatusUrl);
+      if (!response.ok) {
+        throw new Error(`请求草图服务状态失败: ${response.status} ${response.statusText}`);
+      }
+      // 解析服务状态
+      const data = await response.json();
+      const model = `
+        图库中图片的总数：${data.totalImage}
+        图库占用的空间大小：${data.totalImageSizeHuman}
+        审核队列的状态：${data.waitImage}
+        图片接口的累计请求数：${data.apiCount}
+        图片接口的今日请求数：${data.apiCountToday}
+        图片接口的今日流量：${data.apiFlowTodayHuman}
+        服务是否正常：${data.service ? '是' : '否'}
+      `;
+      // 发送服务状态
+      await e.reply(model, true);
+    } catch (error) {
+      // 发送请求错误信息
+      await e.reply(`请求草图服务状态失败: ${error.message}`);
+    }
   }
 }
